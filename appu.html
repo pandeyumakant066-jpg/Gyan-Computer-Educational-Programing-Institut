@@ -1,0 +1,348 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Gyan computer educational programing institute</title>
+<style>
+:root{--card: rgba(255,255,255,0.95);--accent:#0b76ff;--accent2:#28a745;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{font-family:system-ui,-apple-system,"Segoe UI",Roboto,Arial,sans-serif;min-height:100vh;background: linear-gradient(270deg,#ff9a9e,#fad0c4,#a18cd1,#fbc2eb);background-size: 600% 600%;animation: bgAnim 18s ease infinite;color:#111;}
+@keyframes bgAnim{0%{background-position:0% 50%}50%{background-position:100% 50%}100%{background-position:0% 50%}}
+header{display:flex;justify-content:space-between;align-items:center;padding:12px 18px;background:rgba(255,255,255,0.06);backdrop-filter: blur(6px);}
+.brand{font-weight:800;}
+.hdr-right{display:flex;gap:12px;align-items:center;}
+button.btn{background:var(--accent);color:white;border:none;padding:8px 12px;border-radius:8px;cursor:pointer;}
+button.ghost{background:transparent;border:1px solid rgba(0,0,0,0.08);padding:8px 12px;border-radius:8px;cursor:pointer;}
+main{max-width:1000px;margin:20px auto;padding:16px;}
+nav{display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;}
+nav .tab{background:var(--card);padding:10px 12px;border-radius:10px;cursor:pointer;}
+nav .tab.active{box-shadow:0 6px 18px rgba(0,0,0,0.08);transform:translateY(-2px);}
+.card{background:var(--card);border-radius:12px;padding:16px;margin-bottom:14px;box-shadow:0 6px 20px rgba(11,33,66,0.04);}
+.small{font-size:13px;color:#333;}
+.flex{display:flex;gap:12px;align-items:center;}
+input,select,textarea{width:100%;padding:8px;border-radius:8px;border:1px solid #e6eef9;}
+canvas{display:block;margin:12px auto;border-radius:8px;max-width:100%;background:#fff;}
+.ads-area{background:#f7f7fb;border:1px dashed #ddd;padding:12px;border-radius:8px;text-align:center;}
+footer{text-align:center;padding:10px;color:#222;}
+@media(max-width:700px){header{flex-direction:column;align-items:flex-start;} .flex{flex-direction:column;align-items:stretch;}}
+
+/* Overlays */
+#ownerOverlay,#entryOverlay,#paymentOverlay{position:fixed;inset:0;background:rgba(0,0,0,0.85);color:white;display:flex;align-items:center;justify-content:center;z-index:999;}
+#entryOverlay{display:none}
+#ownerBox,#entryBox,#paymentBox{background:#fff;color:#000;padding:20px;border-radius:12px;width:95%;max-width:480px;}
+#ownerBox h2,#entryBox h2,#paymentBox h2{margin-bottom:10px;}
+#genResult{margin-top:8px;padding:8px;background:#f7f7f7;border-radius:8px;font-size:14px;}
+.payment-note{background:#fff3cd;padding:10px;border-radius:8px;margin-bottom:8px;color:#856404}
+
+/* Timer overlay with progress bar */
+#timerOverlay{position:fixed;inset:0;background:rgba(0,0,0,0.75);color:white;display:none;align-items:center;justify-content:center;z-index:10000;}
+#timerBox{background:#fff;color:#000;padding:20px;border-radius:12px;width:95%;max-width:420px;text-align:center;}
+#timerDisplay{font-size:22px;margin:12px 0;font-weight:700;}
+#progressBarContainer{background:#ddd;width:100%;height:12px;border-radius:6px;overflow:hidden;margin-bottom:10px;}
+#progressBar{background:#28a745;width:100%;height:100%;transition:width 1s linear;}
+#afterTimeButtons{display:flex;gap:12px;justify-content:center;margin-top:10px;}
+#afterTimeButtons button{padding:8px 12px;border-radius:8px;border:none;cursor:pointer;}
+#afterTimeButtons .homeBtn{background:#28a745;color:#fff;}
+#afterTimeButtons .loginBtn{background:#0b76ff;color:#fff;}
+</style>
+</head>
+<body>
+
+<!-- OWNER LOGIN -->
+<div id="ownerOverlay">
+  <div id="ownerBox">
+    <h2>Owner Login</h2>
+    <label>Name</label><input id="ownName"><br>
+    <label>ID</label><input id="ownId"><br>
+    <label>Password</label><input id="ownPass" type="password"><br>
+    <button class="btn" style="margin-top:10px" onclick="checkOwner()">Login as Owner</button>
+    <div id="ownerMsg" class="small" style="color:red;margin-top:6px"></div>
+  </div>
+</div>
+
+<!-- ENTRY OVERLAY -->
+<div id="entryOverlay">
+  <div id="entryBox">
+    <h2>Register & Generate Login</h2>
+    <label>Name</label><input id="regName"><br>
+    <label>Father Name</label><input id="regFather"><br>
+    <label>Mother Name</label><input id="regMother"><br>
+    <label>Address</label><input id="regAddr"><br>
+    <label>Mobile</label><input id="regMobile"><br>
+    <label>Email</label><input id="regEmail"><br>
+    <label>Aadhar Number</label><input id="regAadhar"><br>
+    <div style="margin-top:8px;display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn" onclick="generateCreds()">Generate Username & Password</button>
+      <button class="btn" onclick="saveUserData()">Save Data</button>
+    </div>
+    <div id="genResult"></div>
+    <div style="margin-top:10px">
+      <label>Enter Username</label><input id="loginUser"><br>
+      <label>Enter Password</label><input id="loginPass" type="password"><br>
+      <button class="btn" style="margin-top:8px" onclick="checkLogin()">Login</button>
+    </div>
+    <div class="small" style="margin-top:8px;color:#555">Note: Saved users are stored in your browser (localStorage). Use saved username/password to login anytime on this browser.</div>
+  </div>
+</div>
+
+<!-- PAYMENT OVERLAY -->
+<div id="paymentOverlay" style="display:none">
+  <div id="paymentBox">
+    <h2>Payment Required</h2>
+    <div class="payment-note">आपको आगे बढ़ने के लिए <b>₹4050</b> जमा करना होगा।</div>
+    <p class="small">कृपया नीचे दिए गए बटन पर क्लिक करके भुगतान करें (यह डेमो है)।</p>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin-top:8px">
+      <button class="btn" id="payBtn" onclick="onPayClick()">Pay ₹4050</button>
+      <input id="ownerCodeInput" placeholder="Owner code लिखें" style="width:auto;padding:8px;border-radius:8px;border:1px solid #e6eef9;" />
+      <button class="btn" onclick="verifyOwnerCode()">Verify Code</button>
+    </div>
+    <div id="paymentMsg" class="small" style="margin-top:8px;color:#333"></div>
+    <div class="small" style="margin-top:8px;color:#555">नोट: यह सिस्टम केवल उस विशेष उपयोगकर्ता पर लागू है जिसका username: <b>me dale jaha83</b> और password: <b>reja88</b></div>
+  </div>
+</div>
+
+<header>
+  <div class="brand"> <center>Welcome To :-  Gyan Computer Educational Programing Institute </center></div>
+  <div class="hdr-right">
+    <div id="hdrBalance" class="small">Balance: 0</div>
+    <div id="hdrUser" class="small">Not logged in</div>
+  </div>
+</header>
+
+<main>
+  <nav id="navBar">
+    <div class="tab active" data-target="home">Home</div>
+    <div class="tab" data-target="tasks">Tasks</div>
+    <div class="tab" data-target="games">Games</div>
+    <div class="tab" data-target="ads">Watch Ads</div>
+    <div class="tab" data-target="profile">Profile</div>
+  </nav>
+
+  <section id="home" class="card">
+    <h2>Welcome To :- Gyan Computer Educational programing Institute</h2>
+    <p class="small">Real environment — real payouts require backend, payment gateway and KYC.</p>
+    <h1>OWNERR :- APPU PANDEY SIR </h1>
+  </section>
+
+  <section id="tasks" class="card" style="display:none">
+    <h3>Infinite Tasks (30 shown)</h3>
+    <div id="tasksList"></div>
+  </section>
+
+  <section id="games" class="card" style="display:none">
+    <h3>Games — Bubble Click & Shooter</h3>
+    <div class="flex" style="flex-wrap:wrap">
+      <div style="flex:1;min-width:280px">
+        <div class="small">Bubble Click Game</div>
+        <canvas id="bubbleCanvas" width="360" height="260"></canvas>
+        <div class="flex"><button id="startBubble" class="btn">Start Bubble</button><div class="small" id="bubbleScore">Score: 0</div></div>
+        <div class="small">Target: reach score 12 → reward 5 coins</div>
+      </div>
+      <div style="flex:1;min-width:280px">
+        <div class="small">Shooter Game</div>
+        <canvas id="shooterCanvas" width="360" height="260"></canvas>
+        <div class="flex"><button id="startShooter" class="btn">Start Shooter</button><div class="small" id="shooterScore">Score: 0</div></div>
+        <div class="small">Target: hit 6 targets → reward 5 coins</div>
+      </div>
+    </div>
+  </section>
+
+  <section id="ads" class="card" style="display:none">
+    <h3>Watch Ads & Earn</h3>
+    <button id="watchDemoAd" class="btn">Watch Demo Ad (Earn 5)</button>
+  </section>
+
+  <section id="profile" class="card" style="display:none">
+    <h3>Profile & Withdraw</h3>
+    <div id="profileArea"></div>
+    <hr>
+    <h4>Withdraw Coins</h4>
+    <label>Bank Holder Name</label><input id="bankName"><br>
+    <label>Account Number</label><input id="accNumber"><br>
+    <label>IFSC Code</label><input id="ifscCode"><br>
+    <label>Bank Branch</label><input id="bankBranch"><br>
+    <label>Amount</label><input id="withdrawAmount" type="number"><br>
+    <button class="btn" onclick="doWithdraw()">Withdraw</button>
+    <h4 style="margin-top:15px">Withdraw History</h4>
+    <ul id="withdrawHistory"></ul>
+  </section>
+
+</main>
+
+<footer>
+  <div class="small">Demo only — Withdraw system is simulation.</div>
+</footer>
+
+<!-- TIMER OVERLAY with progress bar -->
+<div id="timerOverlay">
+  <div id="timerBox">
+    <h2>आपकी Timing 1 Minute की है</h2>
+    <p style="margin-bottom:6px;">यदि आप Timing बढ़ाना चाहते हैं तो Group Management से संपर्क करें।</p>
+    <div id="timerDisplay">60 सेकंड बाकी</div>
+    <div id="progressBarContainer"><div id="progressBar"></div></div>
+    <div id="afterTimeButtons" style="display:none;">
+      <button class="homeBtn" id="backHome">Back to Home</button>
+      <button class="loginBtn" id="backLogin">Back to Login</button>
+    </div>
+  </div>
+</div>
+
+<script>
+let generatedUser="",generatedPass="";
+let userBalance=100;
+let withdrawHistory=[];
+let storedUsers=[];
+let isLoggedIn=false;
+let timerActive=false;
+let taskTimerInterval=null;
+let taskStartTime=0;
+let taskDuration=60; // 1 minute
+
+/* Load saved users */
+function loadStoredUsers(){
+  try{ const s = localStorage.getItem('paisekamai_users'); if(s){storedUsers=JSON.parse(s);} else {storedUsers=[];} }catch(e){storedUsers=[];}
+}
+loadStoredUsers();
+function persistStoredUsers(){ try{ localStorage.setItem('paisekamai_users',JSON.stringify(storedUsers)); }catch(e){console.error(e);} }
+
+/* Owner login */
+function checkOwner(){
+  const n=document.getElementById('ownName').value.trim();
+  const i=document.getElementById('ownId').value.trim();
+  const p=document.getElementById('ownPass').value.trim();
+  if(n==="appu pandey reshama" && i==="appu pandey 638740" && p==="appureshama"){
+    document.getElementById('ownerOverlay').style.display="none";
+    document.getElementById('entryOverlay').style.display="flex";
+  }else{
+    document.getElementById('ownerMsg').textContent="Invalid Owner Credentials";
+  }
+}
+
+/* Registration & save */
+function generateCreds(){
+  const n=document.getElementById('regName').value.trim();
+  const f=document.getElementById('regFather').value.trim();
+  const m=document.getElementById('regMother').value.trim();
+  const mob=document.getElementById('regMobile').value.trim();
+  if(!n||!f||!m||!mob){alert("Fill Name, Father, Mother, Mobile");return;}
+  generatedUser=(n.slice(0,2)+f.slice(0,2)+mob.slice(0,2)).toLowerCase();
+  generatedPass=(m.slice(0,2)+n.slice(0,2)+mob.slice(-2)).toLowerCase();
+  document.getElementById('genResult').innerHTML="<b>Generated Username:</b> "+generatedUser+"<br><b>Password:</b> "+generatedPass;
+}
+
+function saveUserData(){
+  const n=document.getElementById('regName').value.trim();
+  const f=document.getElementById('regFather').value.trim();
+  const m=document.getElementById('regMother').value.trim();
+  const addr=document.getElementById('regAddr').value.trim();
+  const mob=document.getElementById('regMobile').value.trim();
+  const email=document.getElementById('regEmail').value.trim();
+  const aadhar=document.getElementById('regAadhar').value.trim();
+  if(!n||!f||!m||!mob){alert("Fill Name, Father, Mother, Mobile");return;}
+  if(!generatedUser||!generatedPass){alert("Generate username & password first");return;}
+  const userObj={username:generatedUser,password:generatedPass,name:n,father:f,mother:m,address:addr,mobile:mob,email:email,aadhar:aadhar,balance:userBalance};
+  const exists = storedUsers.find(u=>u.username===generatedUser);
+  if(exists){ if(!confirm("Overwrite existing user data?")) return; storedUsers=storedUsers.map(u=>u.username===generatedUser?userObj:u); } else { storedUsers.push(userObj); }
+  persistStoredUsers();
+  alert("User data saved locally.");
+}
+
+/* Login */
+function checkLogin(){
+  const u=document.getElementById('loginUser').value.trim();
+  const p=document.getElementById('loginPass').value.trim();
+  if(!u||!p){ alert("Enter username & password"); return; }
+  const specialUser = (u==='me dale jaha83' && p==='reja88');
+  if(!specialUser && u===generatedUser && p===generatedPass){ isLoggedIn=true; document.getElementById('entryOverlay').style.display="none"; refreshHeader(); showSection('home'); return;}
+  const found = storedUsers.find(x=>x.username===u && x.password===p);
+  if(!specialUser && found){ generatedUser=found.username; generatedPass=found.password; userBalance=found.balance; isLoggedIn=true; document.getElementById('entryOverlay').style.display="none"; refreshHeader(); showSection('home'); return;}
+  if(specialUser){ generatedUser=u; generatedPass=p; document.getElementById('paymentMsg').textContent=''; document.getElementById('paymentOverlay').style.display='flex'; document.getElementById('entryOverlay').style.display='none'; refreshHeader(); return; }
+  alert("Invalid username/password");
+}
+
+/* Payment / owner code */
+function onPayClick(){ document.getElementById('paymentMsg').textContent='कृपया ₹4050 का भुगतान owner से कर दें। भुगतान के बाद owner code डालें।'; }
+function verifyOwnerCode(){ const code=document.getElementById('ownerCodeInput').value.trim(); if(!code){alert('Owner code डालें'); return;} if(code==='appureshama'||code==='APPURES'){ document.getElementById('paymentOverlay').style.display='none'; isLoggedIn=true; userBalance=100; refreshHeader(); showSection('home'); alert("Payment verified! Login success");} else{ alert("Owner code invalid"); } }
+
+/* Header refresh */
+function refreshHeader(){ document.getElementById('hdrBalance').textContent='Balance: '+userBalance; document.getElementById('hdrUser').textContent=isLoggedIn?generatedUser:'Not logged in'; }
+
+/* Section switching */
+document.querySelectorAll('#navBar .tab').forEach(t=>t.addEventListener('click',e=>{
+  document.querySelectorAll('#navBar .tab').forEach(x=>x.classList.remove('active'));
+  t.classList.add('active'); showSection(t.dataset.target);
+}));
+
+function showSection(sec){
+  document.querySelectorAll('main > section').forEach(s=>s.style.display='none');
+  const s=document.getElementById(sec);
+  if(s)s.style.display='block';
+  if(sec==='tasks') startTaskTimer();
+}
+
+/* =================== TASKS =================== */
+function startTaskTimer(){
+  timerActive=true;
+  taskStartTime=Date.now();
+  document.getElementById('timerOverlay').style.display='none'; // overlay hidden initially
+  document.getElementById('afterTimeButtons').style.display='none';
+  if(taskTimerInterval) clearInterval(taskTimerInterval);
+
+  taskTimerInterval=setInterval(()=>{
+    const elapsed=Math.floor((Date.now()-taskStartTime)/1000);
+    const remaining=taskDuration-elapsed;
+    const progressBar=document.getElementById('progressBar');
+    if(remaining>0){
+      progressBar.style.width=(remaining/taskDuration*100)+'%';
+      document.getElementById('timerDisplay').textContent=remaining+' सेकंड बाकी';
+    } else {
+      clearInterval(taskTimerInterval);
+      timerActive=false;
+      progressBar.style.width='0%';
+      document.getElementById('timerOverlay').style.display='flex';
+      document.getElementById('afterTimeButtons').style.display='flex';
+      document.getElementById('timerDisplay').textContent='1 मिनट पूरा हो चुका है';
+    }
+  },1000);
+}
+
+/* Overlay buttons */
+document.getElementById('backHome').addEventListener('click',()=>{document.getElementById('timerOverlay').style.display='none'; showSection('home');});
+document.getElementById('backLogin').addEventListener('click',()=>{document.getElementById('timerOverlay').style.display='none'; document.getElementById('entryOverlay').style.display='flex';});
+
+/* Tasks list */
+const tasksList=document.getElementById('tasksList');
+for(let i=0;i<30;i++){
+  const card=document.createElement('div'); card.className='card small'; card.innerHTML=`Task ${i+1} - Reward: 5 coins`;
+  const btn=document.createElement('button'); btn.className='btn'; btn.textContent='Complete Task'; btn.addEventListener('click',()=>{
+    if(!timerActive){alert("1 मिनट पूरा नहीं हुआ — अभी task complete नहीं कर सकते।"); return;}
+    userBalance+=5;
+    const su = storedUsers.find(u => u.username === generatedUser);
+    if(su){ su.balance = userBalance; persistStoredUsers(); }
+    alert("Task "+(i+1)+" completed! +5 coins"); refreshHeader();
+  });
+  card.appendChild(btn); tasksList.appendChild(card);
+}
+
+/* =================== GAMES / ADS =================== */
+document.getElementById('watchDemoAd').addEventListener('click',()=>{
+  alert("Demo Ad watched! +5 coins"); userBalance+=5; refreshHeader();
+});
+
+/* =================== WITHDRAW =================== */
+function doWithdraw(){
+  const amt=parseInt(document.getElementById('withdrawAmount').value);
+  if(isNaN(amt)||amt<=0){ alert("Enter valid amount"); return;}
+  if(amt>userBalance){ alert("Insufficient balance"); return;}
+  userBalance-=amt; refreshHeader();
+  const entry=`${new Date().toLocaleString()} - ₹${amt}`;
+  withdrawHistory.push(entry);
+  document.getElementById('withdrawHistory').innerHTML=withdrawHistory.map(x=>`<li>${x}</li>`).join('');
+  alert("Withdraw recorded! Demo only");
+}
+
+</script>
+
+</body>
+</html>
